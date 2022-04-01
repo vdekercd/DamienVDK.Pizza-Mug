@@ -7,7 +7,10 @@ builder.Services.AddEndpointsApiExplorer()
     .Configure<KestrelServerOptions>(options => options.AllowSynchronousIO = true)
     .AddTransient<IDetectIntentAndGetResponseStrategy, DefaultDetectIntentAndGetResponseStrategy>()
     .AddScoped<OrderRepository>()
-    .AddDbContext<OrderContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("OrderDatabase")));
+    .AddDbContext<OrderContext>(
+        options => options.UseSqlServer(builder.Configuration.GetConnectionString("OrderDatabase"), 
+  providerOptions => providerOptions.EnableRetryOnFailure()))
+    ;
 
 // Configure app
 var app = builder.Build();

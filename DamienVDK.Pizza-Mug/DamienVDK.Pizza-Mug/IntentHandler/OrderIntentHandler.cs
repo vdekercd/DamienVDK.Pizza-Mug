@@ -1,14 +1,17 @@
-﻿namespace DamienVDK.Pizza_Mug.IntentHandler;
+﻿using Microsoft.Extensions.Caching.Memory;
+
+namespace DamienVDK.Pizza_Mug.IntentHandler;
 
 [Intent("^OrderIntent$")]
 public sealed class OrderIntentHandler : IIntentHandler
 {
     private readonly OrderRepository _orderRepository;
-    private static List<Pizza> _pizzas = new List<Pizza>();
+    private readonly IMemoryCache _memoryCache;
     
     public OrderIntentHandler(IServiceProvider serviceProvider)
     {
-        _orderRepository = serviceProvider.GetService<OrderRepository>();
+        _orderRepository = serviceProvider.GetService<OrderRepository>() ?? throw new ArgumentNullException(nameof(_orderRepository));
+        _memoryCache = serviceProvider.GetService<IMemoryCache>() ?? throw new ArgumentNullException(nameof(_memoryCache));;
     }
     
     public async Task<WebhookResponse> GetResponseAsync(WebhookRequest request)
@@ -22,22 +25,19 @@ public sealed class OrderIntentHandler : IIntentHandler
         
         var order = await _orderRepository.GetOrderBySession(request.Session);
         var isNewSession = order.OrderId == 0;
-        
-        if (_pizzas.Count == 0)
-        {
-            _pizzas = await _orderRepository.GetPizzasAsync();
-        }
+
+        var knownPizzaNames = await GetPizzaNamesAsync();
         
         var pizzas = new List<Pizza>();
 
         foreach (var pizzaName in pizzaNames)
         {
-            var pizza = _pizzas.FirstOrDefault(p => p.Name.Equals(pizzaName));
+            var pizza = knownPizzaNames.FirstOrDefault(p => p.Name.Equals(pizzaName));
         
             if (pizza == null) return NoPizzaWithNameResponse(pizzaName);
 
             pizzas.Add(pizza);
-        };
+        }
 
         for (int i = 0; i < pizzaNames.Count; i++)
         {
@@ -53,8 +53,6 @@ public sealed class OrderIntentHandler : IIntentHandler
         await _orderRepository.SaveChangesAsync();
 
         string responseText = "Autre chose?";
-
-        
 
         if (isNewSession)
         {
@@ -84,5 +82,19 @@ public sealed class OrderIntentHandler : IIntentHandler
             FulfillmentText = $"Désolé, je n'ai pas compris. Veuillez répéter votre commande.",
             Source = "pizzamug.azurewebsites.net"
         };
+    }
+    
+    private async Task<List<Pizza>> GetPizzaNamesAsync()
+    {
+        if (_memoryCache.TryGetValue("Pizzas", out List<Pizza> cacheValue)) return cacheValue;
+        
+        cacheValue = await _orderRepository.GetPizzasAsync();;
+
+        var cacheEntryOptions = new MemoryCacheEntryOptions()
+            .SetSlidingExpiration(TimeSpan.FromHours(3));
+
+        _memoryCache.Set("Pizzas", cacheValue, cacheEntryOptions);
+
+        return cacheValue;
     }
 }

@@ -9,6 +9,6 @@ public class OrderPizza
     [ForeignKey(nameof(Pizza))]
     public int PizzaID { get; set; }
     public int Quantity { get; set; }
-    public virtual Order Order { get; set; }
-    public virtual Pizza Pizza { get; set; }
+    public virtual Order Order { get; set; } = null!;
+    public virtual Pizza Pizza { get; set; } = null!;
 }
