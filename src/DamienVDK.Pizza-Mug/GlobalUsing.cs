@@ -1,0 +1,14 @@
+﻿global using Google.Cloud.Dialogflow.V2;
+global using System.Text.RegularExpressions;
+global using DamienVDK.Pizza_Mug.IntentHandler;
+global using DamienVDK.Pizza_Mug.Strategies;
+global using Google.Protobuf;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Server.Kestrel.Core;
+global using System.ComponentModel.DataAnnotations;
+global using System.ComponentModel.DataAnnotations.Schema;
+global using Microsoft.EntityFrameworkCore;
+global using DamienVDK.Pizza_Mug.DataAccess.DBContexts;
+global using DamienVDK.Pizza_Mug.Models;
+global using DamienVDK.Pizza_Mug.Extensions;
+global using DamienVDK.Pizza_Mug.Repositories;

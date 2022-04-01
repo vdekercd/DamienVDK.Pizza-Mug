@@ -43,8 +43,8 @@ jobs:
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"vdekercd_DamienVDK.Pizza-Mug" /o:"vdekercd" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet clean ./DamienVDK.Pizza-Mug.sln
-          dotnet restore ./DamienVDK.Pizza-Mug.sln
-          dotnet build ./DamienVDK.Pizza-Mug.sln
-          dotnet test ./DamienVDK.Pizza-Mug.sln --collect "Code Coverage"
+          dotnet clean ./src/DamienVDK.Pizza-Mug.sln
+          dotnet restore ./src/DamienVDK.Pizza-Mug.sln
+          dotnet build ./src/DamienVDK.Pizza-Mug.sln
+          dotnet test ./src/DamienVDK.Pizza-Mug.sln --collect "Code Coverage"
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
