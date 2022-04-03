@@ -24,7 +24,6 @@ public sealed class OrderIntentHandler : IIntentHandler
         if (pizzaNames.Count == 0 || pizzaNames.Count != pizzaQuantities.Count)
             return ReturnCannotUnderstandResponse();
         
-        
         var order = await _orderRepository.GetOrderBySession(request.Session);
         var isNewSession = order.OrderId == 0;
 
@@ -35,13 +34,11 @@ public sealed class OrderIntentHandler : IIntentHandler
         foreach (var pizzaName in pizzaNames)
         {
             var pizza = knownPizzaNames.FirstOrDefault(p => p.Name.Equals(pizzaName));
-        
             if (pizza == null) return NoPizzaWithNameResponse(pizzaName);
-
             pizzas.Add(pizza);
         }
 
-        for (int i = 0; i < pizzaNames.Count; i++)
+        for (var i = 0; i < pizzaNames.Count; i++)
         {
             order.OrderPizzas.Add(new OrderPizza()
             {
@@ -54,19 +51,10 @@ public sealed class OrderIntentHandler : IIntentHandler
         if (order.OrderId == 0) _orderRepository.Add(order);
         await _orderRepository.SaveChangesAsync();
 
-        string responseText = "Autre chose?";
-
-        if (isNewSession)
-        {
-            responseText = $"Votre numéro de commande est le {order.OrderId}! " + responseText;
-        }
-        
-        return new WebhookResponse
-        {
-            FulfillmentText = responseText,
-            Source = "pizzamug.azurewebsites.net",
-        };
+        return OkReponse(isNewSession, order);
     }
+
+    
 
     private static WebhookResponse NoPizzaWithNameResponse(string pizzaName)
     {
@@ -83,6 +71,18 @@ public sealed class OrderIntentHandler : IIntentHandler
         {
             FulfillmentText = $"Désolé, je n'ai pas compris. Veuillez répéter votre commande.",
             Source = "pizzamug.azurewebsites.net"
+        };
+    }
+    
+    private static WebhookResponse OkReponse(bool isNewSession, Order order)
+    {
+        string responseText = "Autre chose?";
+        if (isNewSession) responseText = $"Votre numéro de commande est le {order.OrderId}! ${responseText}";
+
+        return new WebhookResponse
+        {
+            FulfillmentText = responseText,
+            Source = "pizzamug.azurewebsites.net",
         };
     }
     
