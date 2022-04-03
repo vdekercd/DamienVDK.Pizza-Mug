@@ -7,7 +7,8 @@ public sealed class GetPriceIntentHandler : IIntentHandler
     
     public GetPriceIntentHandler(IServiceProvider serviceProvider)
     {
-        _orderRepository = serviceProvider.GetService<OrderRepository>() ?? throw new ArgumentNullException(nameof(_orderRepository));
+        _orderRepository = serviceProvider.GetService<OrderRepository>() 
+                           ?? throw new InvalidOperationException($"{nameof(OrderRepository)} is not registered in the service provider");
     }
 
     public async Task<WebhookResponse> GetResponseAsync(WebhookRequest request)

@@ -10,8 +10,10 @@ public sealed class OrderIntentHandler : IIntentHandler
     
     public OrderIntentHandler(IServiceProvider serviceProvider)
     {
-        _orderRepository = serviceProvider.GetService<OrderRepository>() ?? throw new ArgumentNullException(nameof(_orderRepository));
-        _memoryCache = serviceProvider.GetService<IMemoryCache>() ?? throw new ArgumentNullException(nameof(_memoryCache));;
+        _orderRepository = serviceProvider.GetService<OrderRepository>()
+                           ?? throw new InvalidOperationException($"{nameof(OrderRepository)} is not registered in the service provider");
+        _memoryCache = serviceProvider.GetService<IMemoryCache>() 
+                       ?? throw new InvalidOperationException($"{nameof(IMemoryCache)} is not registered in the service provider");
     }
     
     public async Task<WebhookResponse> GetResponseAsync(WebhookRequest request)

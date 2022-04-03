@@ -7,7 +7,8 @@ public class EndCommandIntentHandler : IIntentHandler
     
     public EndCommandIntentHandler(IServiceProvider serviceProvider)
     {
-        _orderRepository = serviceProvider.GetService<OrderRepository>() ?? throw new ArgumentNullException(nameof(_orderRepository));
+        _orderRepository = serviceProvider.GetService<OrderRepository>() 
+                           ?? throw new InvalidOperationException($"{nameof(OrderRepository)} is not registered in the service provider");
     }
 
 
