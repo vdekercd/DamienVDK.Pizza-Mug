@@ -90,7 +90,7 @@ public sealed class OrderIntentHandler : IIntentHandler
     {
         if (_memoryCache.TryGetValue("Pizzas", out List<Pizza> cacheValue)) return cacheValue;
         
-        cacheValue = await _orderRepository.GetPizzasAsync();;
+        cacheValue = await _orderRepository.GetPizzasAsync();
 
         var cacheEntryOptions = new MemoryCacheEntryOptions()
             .SetSlidingExpiration(TimeSpan.FromHours(3));
